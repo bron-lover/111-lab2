@@ -77,3 +77,97 @@ class TestLab2(unittest.TestCase):
                     result,
                     f"\n Cannot handle re-queue and new process arrival at the same time\n   Quantum Time: {x}\n Correct Results: Avg Wait. Time:{correctAvgWaitTime[x]}, Avg. Resp. Time:{correctAvgRespTime[x]}\n    Your Results: Avg Wait. Time:{testAvgWaitTime}, Avg. Resp. Time:{testAvgRespTime}\n",
                 )
+
+    # Added
+
+    def test_averages_two(self):
+        fileName = "processes2.txt"
+        correctAvgWaitTime = 0
+        correctAvgRespTime = 0
+
+        self.assertTrue(self.make, msg="make failed")
+        cl_result = subprocess.check_output(("./rr", fileName, str(2))).decode()
+        lines = cl_result.split("\n")
+        # print(lines)
+
+        testAvgWaitTime = float(lines[0].split(":")[1])
+        testAvgRespTime = float(lines[1].split(":")[1])
+        result = True
+        if testAvgWaitTime != correctAvgWaitTime:
+            result = False
+        if testAvgRespTime != correctAvgRespTime:
+            result = False
+
+        self.assertTrue(
+            result,
+            f"\n    Quantum Time: 2\n Correct Results: Avg Wait. Time:{correctAvgWaitTime}, Avg. Resp. Time:{correctAvgRespTime}\n    Your Results: Avg Wait. Time:{testAvgWaitTime}, Avg. Resp. Time:{testAvgRespTime}\n",
+        )
+
+    def test_averages_three(self):
+        fileName = "processes3.txt"
+        correctAvgWaitTime = (0, 5, 4.8, 5.2, 4, 3.8)
+        correctAvgRespTime = (0, 0.8, 1.4, 2, 2.6, 2.8)
+
+        self.assertTrue(self.make, msg="make failed")
+        for x in range(1, 5):
+            cl_result = subprocess.check_output(("./rr", fileName, str(x))).decode()
+            lines = cl_result.split("\n")
+            testAvgWaitTime = float(lines[0].split(":")[1])
+            testAvgRespTime = float(lines[1].split(":")[1])
+
+            result = True
+            if testAvgWaitTime != correctAvgWaitTime[x]:
+                result = False
+            if testAvgRespTime != correctAvgRespTime[x]:
+                result = False
+
+            self.assertTrue(
+                result,
+                f"\n    Quantum Time: {x}\n Correct Results: Avg Wait. Time:{correctAvgWaitTime[x]}, Avg. Resp. Time:{correctAvgRespTime[x]}\n    Your Results: Avg Wait. Time:{testAvgWaitTime}, Avg. Resp. Time:{testAvgRespTime}\n",
+            )
+
+    def test_averages_four(self):
+        fileName = "processes4.txt"
+        correctAvgWaitTime = (0, 1, 1)
+        correctAvgRespTime = (0, 0, 0)
+
+        self.assertTrue(self.make, msg="make failed")
+        for x in range(1, 2):
+            cl_result = subprocess.check_output(("./rr", fileName, str(x))).decode()
+            lines = cl_result.split("\n")
+            testAvgWaitTime = float(lines[0].split(":")[1])
+            testAvgRespTime = float(lines[1].split(":")[1])
+
+            result = True
+            if testAvgWaitTime != correctAvgWaitTime[x]:
+                result = False
+            if testAvgRespTime != correctAvgRespTime[x]:
+                result = False
+
+            self.assertTrue(
+                result,
+                f"\n    Quantum Time: {x}\n Correct Results: Avg Wait. Time:{correctAvgWaitTime[x]}, Avg. Resp. Time:{correctAvgRespTime[x]}\n    Your Results: Avg Wait. Time:{testAvgWaitTime}, Avg. Resp. Time:{testAvgRespTime}\n",
+            )
+
+    def test_averages_five(self):
+        fileName = "processes5.txt"
+        correctAvgWaitTime = 1.67
+        correctAvgRespTime = 1.67
+
+        self.assertTrue(self.make, msg="make failed")
+        cl_result = subprocess.check_output(("./rr", fileName, str(4))).decode()
+        lines = cl_result.split("\n")
+        # print(lines)
+
+        testAvgWaitTime = float(lines[0].split(":")[1])
+        testAvgRespTime = float(lines[1].split(":")[1])
+        result = True
+        if testAvgWaitTime != correctAvgWaitTime:
+            result = False
+        if testAvgRespTime != correctAvgRespTime:
+            result = False
+
+        self.assertTrue(
+            result,
+            f"\n    Quantum Time: 4\n Correct Results: Avg Wait. Time:{correctAvgWaitTime}, Avg. Resp. Time:{correctAvgRespTime}\n    Your Results: Avg Wait. Time:{testAvgWaitTime}, Avg. Resp. Time:{testAvgRespTime}\n",
+        )
