@@ -217,6 +217,17 @@ int main(int argc, char *argv[])
       else
       {
         curr_time++;
+
+        // Load incoming processes
+        // Need to satisfy the constriant of adding procs @ time t to queue before procs ending @ t-1 back
+        for (u32 i = 0; i < size; i++)
+        {
+          if (data[i].arrival_time == curr_time)
+          {
+            TAILQ_INSERT_TAIL(&list, &data[i], pointers);
+          }
+        }
+
         continue;
       }
     }
