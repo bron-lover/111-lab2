@@ -18,9 +18,13 @@ struct process
   u32 arrival_time;
   u32 burst_time;
 
-  TAILQ_ENTRY(process) pointers;
+  TAILQ_ENTRY(process)
+  pointers;
 
   /* Additional fields here */
+  u32 time_remaining;
+  u32 first_start_time;
+  bool started;
   /* End of "Additional fields here" */
 };
 
@@ -160,7 +164,110 @@ int main(int argc, char *argv[])
   u32 total_response_time = 0;
 
   /* Your code here */
-  
+
+  struct process *curr_process;
+  u32 curr_time = UINT32_MAX;
+
+  for (u32 i = 0; i < size; i++)
+  {
+    curr_process = &data[i];
+    // Init attributes of process structs
+    curr_process->time_remaining = curr_process->burst_time;
+    curr_process->started = false;
+    // Get first arrival time, then we can start time variable from first arrival
+    if (curr_process->arrival_time <= curr_time)
+    {
+      curr_time = curr_process->arrival_time;
+    }
+  }
+
+  bool done = false;
+  bool occupied = false;
+  u32 slice_left = 0;
+
+  if (quantum_length == 0)
+  {
+    done = true;
+  }
+
+  // Load the earliest arriving process
+  for (u32 i = 0; i < size; i++)
+  {
+    if (data[i].arrival_time == curr_time)
+    {
+      TAILQ_INSERT_TAIL(&list, &data[i], pointers);
+    }
+  }
+
+  struct process *curr = NULL;
+
+  while (!done)
+  {
+
+    // Get process at the front of the queue if nothing is currently running
+    if (!occupied)
+    {
+      if (!TAILQ_EMPTY(&list))
+      {
+        curr = TAILQ_FIRST(&list);
+        TAILQ_REMOVE(&list, curr, pointers);
+        occupied = true;
+        slice_left = quantum_length;
+      }
+      else
+      {
+        curr_time++;
+        continue;
+      }
+    }
+
+    // If this is the first time we see this process, update response time & attributes
+    if (!curr->started)
+    {
+      total_response_time += (curr_time - curr->arrival_time);
+      curr->started = true;
+    }
+
+    curr->time_remaining--;
+    slice_left--;
+
+    curr_time++;
+
+    // Load incoming processes
+    // Need to satisfy the constriant of adding procs @ time t to queue before procs ending @ t-1 back
+    for (u32 i = 0; i < size; i++)
+    {
+      if (data[i].arrival_time == curr_time)
+      {
+        TAILQ_INSERT_TAIL(&list, &data[i], pointers);
+      }
+    }
+
+    if (curr->time_remaining == 0)
+    {
+      total_waiting_time += (curr_time - curr->arrival_time - curr->burst_time);
+      occupied = false;
+      curr = NULL;
+    }
+    else if (slice_left == 0)
+    {
+      TAILQ_INSERT_TAIL(&list, curr, pointers);
+      occupied = false;
+      curr = NULL;
+    }
+
+    done = true;
+    // Check if there is any process with time left
+    for (u32 i = 0; i < size; i++)
+    {
+      if (data[i].time_remaining > 0)
+      {
+        done = false;
+        break;
+      }
+    }
+  }
+
   /* End of "Your code here" */
 
   printf("Average waiting time: %.2f\n", (float)total_waiting_time / (float)size);
